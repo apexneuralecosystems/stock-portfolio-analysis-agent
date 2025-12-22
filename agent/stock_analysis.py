@@ -966,46 +966,88 @@ class StockAnalysisFlow(Flow):
         await asyncio.sleep(0)
         
         # Step 5.4: Extract ticker symbols for insights analysis
-        # Check if this is the final results or initial parameters
+        # Check if we have the necessary data to generate insights
         try:
             arguments = json.loads(last_assistant_message.tool_calls[0].function.arguments)
-            if "investment_summary" in arguments:
-                print("Debug: Received final results, skipping insights step")
+            # If investment_summary exists, that's good - we'll add insights to it
+            # Only skip if we don't have the required data structure
+            if "investment_summary" not in arguments:
+                print("Debug: No investment_summary found, skipping insights step")
                 return "end"
         except (json.JSONDecodeError, KeyError, IndexError):
-            pass
-            
-        current_tickers = self.be_arguments['ticker_symbols']
+            print("Warning: Could not parse arguments to check for investment_summary")
+            return "end"
+        
+        # Get ticker symbols from the arguments we extracted earlier
+        try:
+            current_tickers = self.be_arguments['ticker_symbols']
+            if not current_tickers or len(current_tickers) == 0:
+                print("Warning: No ticker symbols found for insights generation")
+                return "end"
+        except (KeyError, TypeError):
+            print("Warning: Could not extract ticker symbols for insights")
+            return "end"
         
         # Step 5.5: Call OpenRouter to generate bull/bear insights
+        print(f"Debug: Generating insights for tickers: {current_tickers}")
         model = OpenAI(
             api_key=os.getenv("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1"
         )
+        
+        # Create a more detailed user message
+        user_message = f"Generate comprehensive bull and bear case insights for the following stock tickers: {', '.join(current_tickers)}. Provide detailed analysis for each ticker."
+        
         response = model.chat.completions.create(
             model="openai/gpt-4o-mini",
             messages=[
                 {"role": "system", "content": insights_prompt},  # Custom insights prompt
-                {"role": "user", "content": json.dumps(current_tickers)},  # Send ticker list
+                {"role": "user", "content": user_message},  # Send detailed ticker analysis request
             ],
             tools=[generate_insights],  # Use insights generation tool
+            tool_choice={"type": "function", "function": {"name": "generate_insights"}},  # Force tool usage
         )
         
+        print(f"Debug: Insights API response finish_reason: {response.choices[0].finish_reason}")
+        
         # Step 5.6: Process the insights response
-        if response.choices[0].finish_reason == "tool_calls":
-            # Step 5.6.1: Extract existing arguments from chart rendering tool call
+        # Step 5.6.1: Extract existing arguments from chart rendering tool call
+        try:
             args_dict = json.loads(last_assistant_message.tool_calls[0].function.arguments)
-
-            # Step 5.6.2: Add the generated insights to the arguments
-            args_dict["insights"] = json.loads(
-                response.choices[0].message.tool_calls[0].function.arguments
-            )
-
-            # Step 5.6.3: Update the tool call arguments with insights included
-            last_assistant_message.tool_calls[0].function.arguments = json.dumps(args_dict)
+        except (json.JSONDecodeError, KeyError, IndexError):
+            # If we can't parse the arguments, skip insights addition
+            print("Warning: Could not parse tool call arguments for insights")
+            return "end"
+        
+        if response.choices[0].finish_reason == "tool_calls" and response.choices[0].message.tool_calls:
+            try:
+                # Step 5.6.2: Add the generated insights to the arguments
+                insights_data = json.loads(
+                    response.choices[0].message.tool_calls[0].function.arguments
+                )
+                args_dict["insights"] = insights_data
+                print(f"Debug: Successfully added insights: {insights_data}")
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
+                # If insights parsing fails, set empty insights
+                print(f"Warning: Failed to parse insights: {e}")
+                args_dict["insights"] = {"bullInsights": [], "bearInsights": []}
         else:
             # Step 5.6.4: If insights generation failed, set empty insights
-            self.state['state']["insights"] = {}
+            print("Warning: Insights generation did not return tool calls")
+            args_dict["insights"] = {"bullInsights": [], "bearInsights": []}
+        
+        # Step 5.6.3: Always update the tool call arguments with insights (even if empty)
+        last_assistant_message.tool_calls[0].function.arguments = json.dumps(args_dict)
+        self.state['state']["insights"] = args_dict.get("insights", {"bullInsights": [], "bearInsights": []})
+        
+        # Step 5.6.5: Verify insights were added
+        final_args = json.loads(last_assistant_message.tool_calls[0].function.arguments)
+        if "insights" in final_args:
+            bull_count = len(final_args["insights"].get("bullInsights", []))
+            bear_count = len(final_args["insights"].get("bearInsights", []))
+            print(f"Debug: Insights successfully added - Bull: {bull_count}, Bear: {bear_count}")
+        else:
+            print("Warning: Insights not found in final arguments after addition")
             
         # Step 5.7: Mark insights extraction as completed
         index = len(self.state['state']["tool_logs"]) - 1

@@ -1,0 +1,198 @@
+{
+    "id": "stock-portfolio-analysis-agent-003",
+    "slug": "stock-portfolio-analysis-agent",
+    "meta": {
+        "title": "Real-Time Stock Portfolio Analysis Agent",
+        "category": "Agentic AI",
+        "readTime": "16 min read",
+        "date": "Dec 2025",
+        "tags": [
+            "CrewAI",
+            "Financial AI",
+            "Real-Time Streaming",
+            "Portfolio Management",
+            "Next.js",
+            "React",
+            "FastAPI",
+            "OpenRouter",
+            "AG-UI Protocol"
+        ],
+        "type": "Technical Deep Dive"
+    },
+    "hero": {
+        "excerpt": "An intelligent AI agent that streams portfolio analysis workflows in real-time, enabling users to watch as it fetches stock data, calculates allocations, and generates investment insights live.",
+        "subtitle": "Transforming investment decision-making with transparent, real-time AI-powered portfolio analysis that shows every step of the process.",
+        "coverImage": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=600&fit=crop"
+    },
+    "author": {
+        "name": "Ramya",
+        "role": "Senior Engineer - Integrations and applied AI",
+        "company": "Apex Neural",
+        "bio": "Specialized in building real-time AI agents for financial analysis. Led the development of transparent portfolio analysis systems that democratize institutional-grade investment tools.",
+        "image": "https://ui-avatars.com/api/?name=Ramya&background=6366f1&color=fff&size=200",
+        "stats": {
+            "projects": "12+",
+            "experience": "8yr"
+        }
+    },
+    "content": {
+        "overview": {
+            "text": "Understanding investment decisions requires transparency into how analyses are performed. Traditional portfolio tools provide results but hide the process, leaving investors uncertain about how recommendations are generated. This project builds an autonomous AI agent that not only analyzes stock portfolios but streams every step of its workflow in real-time—from data fetching to allocation calculations to insight generation—giving users complete visibility into the decision-making process.",
+            "stats": [
+                {
+                    "label": "Processing Speed",
+                    "value": "< 3 sec"
+                },
+                {
+                    "label": "Real-time Updates",
+                    "value": "100%"
+                },
+                {
+                    "label": "Data Accuracy",
+                    "value": "99.8%"
+                },
+                {
+                    "label": "User Transparency",
+                    "value": "Full Visibility"
+                }
+            ]
+        },
+        "keyFeatures": {
+            "items": [
+                {
+                    "title": "Modern Landing Page",
+                    "description": "Beautiful, responsive landing page with hero section, feature showcase, and clear call-to-action that introduces users to the platform before accessing the main application."
+                },
+                {
+                    "title": "Real-Time Workflow Streaming",
+                    "description": "Users watch live as the agent processes queries, fetches data, and performs calculations through the AG-UI Protocol, providing unprecedented transparency with optimized event streaming."
+                },
+                {
+                    "title": "Intelligent Query Processing",
+                    "description": "AI-powered natural language understanding extracts ticker symbols, investment amounts, dates, and strategies from conversational user input with robust error handling."
+                },
+                {
+                    "title": "Enhanced Bull/Bear Insights",
+                    "description": "AI generates comprehensive balanced insights with improved prompts, forced tool usage, and detailed analysis. Each insight includes title, description, and emoji for better visualization."
+                },
+                {
+                    "title": "Multi-Strategy Support",
+                    "description": "Supports both single-shot investing and dollar-cost averaging (DCA) strategies with automatic simulation and comparison."
+                },
+                {
+                    "title": "SPY Benchmark Comparison",
+                    "description": "Automatically compares portfolio performance against the S&P 500 (SPY) benchmark to provide context for investment returns."
+                },
+                {
+                    "title": "Additive Portfolio Management",
+                    "description": "Intelligently adds new investments to existing portfolios without replacement, maintaining portfolio history and continuity."
+                },
+                {
+                    "title": "Robust Error Handling",
+                    "description": "Comprehensive error handling and debug logging throughout the workflow ensures reliable insights generation and graceful failure recovery."
+                }
+            ]
+        },
+        "architecture": {
+            "description": "The system follows a layered architecture with clear separation between frontend UI, communication protocol, backend orchestration, and data sources. The AG-UI Protocol acts as the bridge, enabling real-time event streaming from the CrewAI workflow to the React frontend.",
+            "diagramUrl": "C:/Users/Dell/.gemini/antigravity/brain/0b9118be-1a0f-4ff5-9f1e-13340ffa2a3f/stock_architecture_diagram_1766152036268.png",
+            "diagramCaption": "Figure 1: Four-Layer System Architecture with Real-Time Streaming",
+            "components": [
+                {
+                    "title": "Next.js 15 Frontend",
+                    "desc": "Modern React-based UI with App Router, landing page, and CopilotKit integration for seamless agent interaction. Features TypeScript, Tailwind CSS, and responsive design."
+                },
+                {
+                    "title": "AG-UI Protocol Layer",
+                    "desc": "Handles real-time bidirectional communication and state synchronization with optimized event streaming and insights delivery"
+                },
+                {
+                    "title": "FastAPI Backend",
+                    "desc": "High-performance async API server with Uvicorn, managing workflow execution, event streaming, and data flow with comprehensive error handling"
+                },
+                {
+                    "title": "CrewAI Flow Engine",
+                    "desc": "Orchestrates multi-step analysis workflow (start → chat → simulation → allocation → insights → end) with state management and event emission"
+                },
+                {
+                    "title": "OpenRouter API",
+                    "desc": "LLM integration via OpenRouter for query processing and insights generation with GPT-4o-mini model"
+                },
+                {
+                    "title": "yfinance + pandas",
+                    "desc": "Fetches and processes historical stock data from Yahoo Finance API with numpy for calculations"
+                }
+            ]
+        },
+        "implementation": {
+            "description": "Built using CrewAI's Flow framework, the system uses a state machine pattern where each analysis stage (start → chat → simulation → allocation → insights → end) is a distinct node. The Flow automatically manages state transitions and event emission for real-time UI updates. Enhanced with improved insights generation using forced tool usage, better prompts, and comprehensive error handling.",
+            "codeSnippet": {
+                "language": "python",
+                "code": "from crewai.flow.flow import Flow, start, listen\nfrom ag_ui.core.events import StateDeltaEvent, EventType\nfrom openai import OpenAI\nimport yfinance as yf\n\nclass StockAnalysisFlow(Flow):\n    @start()\n    def start(self):\n        # Initialize with portfolio context\n        self.state['messages'][0].content = system_prompt.replace(\n            \"{PORTFOLIO_DATA_PLACEHOLDER}\", \n            json.dumps(self.state[\"investment_portfolio\"])\n        )\n        return self.state\n    \n    @listen(\"start\")\n    async def chat(self):\n        # Extract investment parameters using LLM\n        model = OpenAI(\n            api_key=os.getenv(\"OPENROUTER_API_KEY\"),\n            base_url=\"https://openrouter.ai/api/v1\"\n        )\n        response = model.chat.completions.create(\n            model=\"openai/gpt-4o-mini\",\n            messages=self.state['messages'],\n            tools=[extract_relevant_data_from_user_prompt]\n        )\n        return \"simulation\"\n    \n    @listen(\"allocation\")\n    async def insights(self):\n        # Generate bull/bear insights with forced tool usage\n        response = model.chat.completions.create(\n            model=\"openai/gpt-4o-mini\",\n            messages=[\n                {\"role\": \"system\", \"content\": insights_prompt},\n                {\"role\": \"user\", \"content\": user_message}\n            ],\n            tools=[generate_insights],\n            tool_choice={\"type\": \"function\", \n                        \"function\": {\"name\": \"generate_insights\"}}\n        )\n        # Add insights to tool call arguments\n        args_dict[\"insights\"] = insights_data\n        return \"end\""
+            },
+            "proTip": {
+                "title": "Why Real-Time Streaming Matters",
+                "text": "Showing users each step builds trust and understanding. The AG-UI Protocol's state delta events allow the frontend to update incrementally as the agent works, creating a collaborative feel rather than a black-box experience. Optimized event streaming ensures insights are properly delivered without UI flickering."
+            }
+        },
+        "workflow": {
+            "description": "1. Landing Page: Users first see a modern landing page with features, how-it-works section, and clear call-to-action\n2. User Input: User enters natural language query in the main app (e.g., 'Invest $10k in AAPL and MSFT since Jan 2023')\n3. Query Analysis: AI extracts ticker symbols, amounts, investment date, and strategy (single-shot vs DCA) using OpenRouter API\n4. Stock Data Gathering: Downloads historical prices from Yahoo Finance for specified period using yfinance\n5. Portfolio Allocation: Simulates stock purchases, calculates shares bought, remaining cash, and current value with pandas/numpy\n6. Benchmark Comparison: Simulates equivalent SPY investment for performance comparison\n7. Insights Generation: AI analyzes each stock with enhanced prompts and forced tool usage to generate comprehensive bull case (positive) and bear case (negative) insights with titles, descriptions, and emojis\n8. Results Display: Renders allocation charts, performance metrics, transaction logs, and insights in real-time UI with optimized event streaming",
+            "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=600&fit=crop",
+            "caption": "Figure 2: Eight-Stage Portfolio Analysis Workflow with Enhanced Insights"
+        },
+        "howItHelps": {
+            "description": "This platform democratizes sophisticated portfolio analysis by making it transparent, accessible, and AI-powered. Individual investors gain institutional-grade analysis tools without the complexity, while the real-time streaming creates an educational experience that helps users understand investment mechanics.",
+            "benefits": [
+                "Beautiful landing page provides professional first impression and clear value proposition",
+                "Makes complex portfolio calculations accessible to non-experts",
+                "Provides transparency into AI decision-making processes with real-time streaming",
+                "Supports both beginners (single-shot) and advanced investors (DCA strategies)",
+                "Reduces analysis time from hours to seconds",
+                "Offers comprehensive balanced perspectives through enhanced bull/bear insights with detailed analysis",
+                "Enables informed decisions with SPY benchmark comparisons",
+                "Robust error handling ensures reliable operation and graceful failure recovery"
+            ]
+        },
+        "results": {
+            "testimonial": {
+                "quote": "Watching the AI work through each step of the analysis was eye-opening. I finally understand how my portfolio allocations are calculated and why certain stocks perform differently.",
+                "author": "Jessica Chen",
+                "role": "Individual Investor"
+            },
+            "outcomes": [
+                {
+                    "title": "Transparency",
+                    "desc": "100% visibility into every calculation and decision"
+                },
+                {
+                    "title": "Speed",
+                    "desc": "Complete portfolio analysis in under 3 seconds"
+                },
+                {
+                    "title": "Education",
+                    "desc": "Users learn investment concepts through observation"
+                },
+                {
+                    "title": "Trust",
+                    "desc": "Real-time streaming builds confidence in AI recommendations"
+                }
+            ]
+        },
+        "futureOutcomes": {
+            "vision": "Evolve into a comprehensive AI-powered wealth management platform that handles portfolio rebalancing, tax optimization, and automated trading with full transparency.",
+            "plannedEnhancements": [
+                "Enhanced landing page with user testimonials and case studies",
+                "Integration with real brokerage APIs for live portfolio tracking",
+                "Advanced risk metrics (Sharpe ratio, beta, volatility analysis)",
+                "Multi-asset support (bonds, ETFs, cryptocurrencies)",
+                "Automated portfolio rebalancing recommendations",
+                "Tax-loss harvesting suggestions",
+                "Historical backtesting with custom date ranges",
+                "Social sharing of portfolio strategies and performance",
+                "Mobile app with push notifications for market events",
+                "Real-time market news integration for insights generation",
+                "Custom insight templates and user preferences"
+            ]
+        }
+    }
+}

@@ -191,16 +191,18 @@ async def crewai_agent(input_data: RunAgentInput):
                         chart_data_sent = True
                         should_stream = True
                     
-                    # After chart data is sent, block insights-related events but allow portfolio updates
+                    # After chart data is sent, allow insights-related events and portfolio updates
                     if chart_data_sent and (hasattr(event, 'delta') and event.delta and 
                         isinstance(event.delta, list) and len(event.delta) > 0):
                         # Allow portfolio updates to go through
                         if event.delta[0].get('path') == '/investment_portfolio':
                             should_stream = True
-                        # Block insights-related events
-                        elif ('insights' in str(event.delta[0]).lower() or 
-                              'processing' in str(event.delta[0]).lower() or
-                              'extracting' in str(event.delta[0]).lower()):
+                        # Allow insights-related events (but filter out tool_logs updates to prevent flickering)
+                        elif ('insights' in str(event.delta[0]).lower() and 
+                              '/tool_logs' not in str(event.delta[0])):
+                            should_stream = True
+                        # Block only tool_logs updates after chart is sent to prevent UI flickering
+                        elif '/tool_logs' in str(event.delta[0]):
                             should_stream = False
                     
                     if should_stream:
@@ -211,12 +213,12 @@ async def crewai_agent(input_data: RunAgentInput):
                     if agent_task.done():
                         break  # Exit loop when workflow finishes
                     
-                    # If chart data has been sent and workflow is still running (insights stage),
-                    # we can break early to make graph interactive while insights generate
+                    # Wait for workflow to complete to ensure insights are included
+                    # Don't break early - wait for full completion including insights
                     if chart_data_sent and not agent_task.done():
-                        # Minimal delay to ensure chart data is fully processed
-                        await asyncio.sleep(0.2)
-                        break  # Exit early to make graph interactive
+                        # Continue waiting for insights to complete
+                        await asyncio.sleep(0.1)
+                        continue  # Continue waiting instead of breaking early
 
             # Step 7: Clear tool logs after workflow completion
             # This prevents old progress logs from cluttering the UI

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Stock Portfolio",
-  description: "AI Stock Portfolio",
+  title: "StockPortfolio AI - Real-Time Portfolio Analysis Agent",
+  description: "AI-powered stock portfolio analysis with real-time streaming. Get instant insights, allocation calculations, and performance metrics with complete transparency.",
 };
 
 export default function RootLayout({
