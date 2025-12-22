@@ -5,8 +5,6 @@
 
 # CrewAI Flow framework for building multi-step AI workflows
 from crewai.flow.flow import Flow, start, router, listen, or_
-from litellm import completion
-from pydantic import BaseModel
 from typing import Literal, List
 
 # AG UI types for message handling and state management
