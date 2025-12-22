@@ -76,6 +76,8 @@ export default function OpenStocksCanvas() {
   const [showComponentTree, setShowComponentTree] = useState(false)
   const [totalCash, setTotalCash] = useState(1000000)
   const [investedAmount, setInvestedAmount] = useState(0)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [actionStatus, setActionStatus] = useState<string | null>(null)
 
   const { state, setState } = useCoAgent({
     name: "crewaiAgent",
@@ -85,6 +87,14 @@ export default function OpenStocksCanvas() {
       investment_portfolio: [] as InvestmentPortfolio[]
     }
   })
+
+  // Track loading state based on tool logs and action status
+  useEffect(() => {
+    const hasProcessingLogs = state.tool_logs && state.tool_logs.some((log: any) => log.status === "processing")
+    // Show loading if action is processing (not complete) or if there are processing tool logs
+    const isActionProcessing = actionStatus && actionStatus !== "complete" && actionStatus !== null
+    setIsAnalyzing(hasProcessingLogs || isActionProcessing)
+  }, [state.tool_logs, actionStatus])
 
   useCoAgentStateRender({
     name: "crewaiAgent",
@@ -97,7 +107,8 @@ export default function OpenStocksCanvas() {
     renderAndWaitForResponse: ({ args, respond, status }) => {
       useEffect(() => {
         console.log(args, "argsargsargsargsargsaaa")
-      }, [args])
+        setActionStatus(status || null)
+      }, [args, status])
       return (
         <>
           {(args?.investment_summary?.percent_allocation_per_stock && args?.investment_summary?.percent_return_per_stock && args?.investment_summary?.performanceData) &&
@@ -150,6 +161,7 @@ export default function OpenStocksCanvas() {
                       ...state,
                       available_cash: totalCash,
                     })
+                    setActionStatus(null)
                     respond("Data rendered successfully. Provide summary of the investments by not making any tool calls")
                   }
                 }}
@@ -161,6 +173,7 @@ export default function OpenStocksCanvas() {
                 onClick={() => {
                   debugger
                   if (respond) {
+                    setActionStatus(null)
                     respond("Data rendering rejected. Just give a summary of the rejected investments by not making any tool calls")
                   }
                 }}
@@ -179,6 +192,9 @@ export default function OpenStocksCanvas() {
   useCopilotAction({
     name: "render_custom_charts",
     renderAndWaitForResponse: ({ args, respond, status }) => {
+      useEffect(() => {
+        setActionStatus(status || null)
+      }, [status])
       return (
         <>
           <LineChartComponent data={args?.investment_summary?.performanceData} size="small" />
@@ -194,6 +210,7 @@ export default function OpenStocksCanvas() {
                     spy: item.spy
                   })) || []
                 }])
+                setActionStatus(null)
                 respond("Data rendered successfully. Provide summary of the investments")
               }
             }}
@@ -205,6 +222,7 @@ export default function OpenStocksCanvas() {
             onClick={() => {
               debugger
               if (respond) {
+                setActionStatus(null)
                 respond("Data rendering rejected. Just give a summary of the rejected investments")
               }
             }}
@@ -270,7 +288,7 @@ export default function OpenStocksCanvas() {
     <div className="h-screen bg-[#FAFCFA] flex overflow-hidden">
       {/* Left Panel - Prompt Input */}
       <div className="w-85 border-r border-[#D8D8E5] bg-white flex-shrink-0">
-        <PromptPanel availableCash={totalCash} />
+        <PromptPanel availableCash={totalCash} isAnalyzing={isAnalyzing} />
       </div>
 
       {/* Center Panel - Generative Canvas */}
@@ -296,7 +314,13 @@ export default function OpenStocksCanvas() {
         </div> */}
 
         <div className="pt-20 h-full">
-          <GenerativeCanvas setSelectedStock={setSelectedStock} portfolioState={currentState} sandBoxPortfolio={sandBoxPortfolio} setSandBoxPortfolio={setSandBoxPortfolio} />
+          <GenerativeCanvas 
+            setSelectedStock={setSelectedStock} 
+            portfolioState={currentState} 
+            sandBoxPortfolio={sandBoxPortfolio} 
+            setSandBoxPortfolio={setSandBoxPortfolio}
+            isLoading={isAnalyzing}
+          />
         </div>
       </div>
 

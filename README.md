@@ -32,8 +32,14 @@ An intelligent AI agent that streams portfolio analysis workflows in real-time, 
 ### 1. Install Backend Dependencies
 
 ```bash
+# Navigate to backend directory
+cd backend
+
 # Install Python dependencies using uv
 uv sync
+
+# Go back to project root
+cd ..
 ```
 
 This creates a virtual environment and installs all required packages.
@@ -54,12 +60,12 @@ cd ..
 
 #### Backend Environment Variables
 
-Create `agent/.env` file:
+Create `backend/.env` file:
 
 ```bash
 # Copy from example (if exists)
 # Windows PowerShell:
-Copy-Item agent\.env.example agent\.env
+Copy-Item backend\.env.example backend\.env
 
 # Or create manually with:
 ```
@@ -98,8 +104,14 @@ NEXT_PUBLIC_CREWAI_URL=http://127.0.0.1:8006/crewai-agent
 ### Start Backend Server
 
 ```bash
-# From project root
-uv run python agent/main.py
+# Navigate to backend directory
+cd backend
+
+# Start the server
+uv run python main.py
+
+# Or from project root:
+# uv run python backend/main.py
 ```
 
 The backend will start on `http://127.0.0.1:8006`
@@ -165,11 +177,15 @@ You should see:
 
 ```
 stock-portfolio-analysis-agent/
-├── agent/                      # Backend (FastAPI)
+├── backend/                    # Backend (FastAPI)
 │   ├── .env                   # Backend environment variables
 │   ├── .env.example           # Backend env template
+│   ├── .venv/                 # Python virtual environment
+│   ├── .python-version        # Python version specification
+│   ├── pyproject.toml         # Python dependencies
+│   ├── uv.lock                # Python lock file
 │   ├── main.py                # FastAPI server entry point
-│   ├── stock_analysis.py       # Core workflow logic (CrewAI Flow)
+│   ├── stock_analysis.py      # Core workflow logic (CrewAI Flow)
 │   └── prompts.py             # System and insights prompts
 ├── frontend/                   # Frontend (Next.js)
 │   ├── .env                   # Frontend environment variables
@@ -188,10 +204,7 @@ stock-portfolio-analysis-agent/
 │           └── api/
 │               └── copilotkit/
 │                   └── route.ts
-├── pyproject.toml             # Python dependencies
-├── uv.lock                     # Python lock file
-├── README.md                   # This file
-└── START.md                    # Detailed startup guide
+└── README.md                   # This file
 ```
 
 ## Troubleshooting
@@ -206,7 +219,8 @@ stock-portfolio-analysis-agent/
 - The project requires `>=3.12,<3.13`
 
 **Backend won't start**
-- Verify `agent/.env` exists with `OPENROUTER_API_KEY`
+- Verify `backend/.env` exists with `OPENROUTER_API_KEY`
+- Ensure you're running `uv sync` from the `backend/` directory
 - Check port 8006 is not in use
 - Review backend console logs for errors
 
@@ -235,18 +249,18 @@ stock-portfolio-analysis-agent/
 
 ## Development Notes
 
-- **Python Environment**: If your editor reports missing imports, ensure it points to the virtual environment created by `uv sync`
+- **Python Environment**: If your editor reports missing imports, ensure it points to the virtual environment in `backend/.venv` created by `uv sync` (run from `backend/` directory)
 - **Hot Reload**: Both frontend (Next.js) and backend (Uvicorn) support hot reload during development
 - **Code Locations**:
-  - FastAPI server: `agent/main.py`
-  - Workflow logic: `agent/stock_analysis.py`
-  - Prompts: `agent/prompts.py`
+  - FastAPI server: `backend/main.py`
+  - Workflow logic: `backend/stock_analysis.py`
+  - Prompts: `backend/prompts.py`
+  - Python config: `backend/pyproject.toml` (run `uv sync` from `backend/` directory)
   - Landing page: `frontend/src/app/page.tsx`
   - Main app: `frontend/src/app/app/page.tsx`
 
 ## Additional Resources
 
-- **Detailed Setup Guide**: See [START.md](START.md) for comprehensive installation and troubleshooting
 - **Case Study**: See `stock-portfolio-analysis-agent.case-study.json` for project documentation
 
 ## License

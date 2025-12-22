@@ -6,11 +6,12 @@ import { CopilotChat } from "@copilotkit/react-ui"
 
 interface PromptPanelProps {
   availableCash: number
+  isAnalyzing?: boolean
 }
 
 
 
-export function PromptPanel({ availableCash }: PromptPanelProps) {
+export function PromptPanel({ availableCash, isAnalyzing = false }: PromptPanelProps) {
 
 
   const formatCurrency = (amount: number) => {
@@ -30,8 +31,19 @@ export function PromptPanel({ availableCash }: PromptPanelProps) {
       <div className="p-4 border-b border-[#D8D8E5] bg-[#FAFCFA]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xl">🪁</span>
-          <div>
-            <h1 className="text-lg font-semibold text-[#030507] font-['Roobert']">Portfolio Chat</h1>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-semibold text-[#030507] font-['Roobert']">Portfolio Chat</h1>
+              {isAnalyzing && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-full">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                  </span>
+                  <span className="text-xs font-semibold text-yellow-700">Analyzing...</span>
+                </div>
+              )}
+            </div>
             <div className="inline-block px-2 py-0.5 bg-[#BEC9FF] text-[#030507] text-xs font-semibold uppercase rounded">
               PRO
             </div>

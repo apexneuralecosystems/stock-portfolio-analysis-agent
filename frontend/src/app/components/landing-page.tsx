@@ -1,11 +1,46 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowRight, TrendingUp, BarChart3, Brain, Zap, Shield, Sparkles } from "lucide-react"
+import { ArrowRight, TrendingUp, BarChart3, Brain, Zap, Shield, Sparkles, Loader2 } from "lucide-react"
 
 export function LandingPage() {
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  const handleStartAnalyzing = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    setIsNavigating(true)
+    // Small delay to show loading state before navigation
+    setTimeout(() => {
+      router.push("/app")
+    }, 100)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAFCFA] to-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#FAFCFA] to-white relative">
+      {/* Full-page loading overlay */}
+      {isNavigating && (
+        <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 p-8 bg-white rounded-2xl shadow-xl border border-gray-200 max-w-md">
+            <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 font-['Roobert']">
+                Loading Analysis Interface...
+              </h3>
+              <p className="text-sm text-gray-600">
+                Preparing your portfolio analysis workspace
+              </p>
+            </div>
+            <div className="flex gap-1 mt-2">
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Navigation */}
       <nav className="border-b border-[#D8D8E5] bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -13,13 +48,25 @@ export function LandingPage() {
             <TrendingUp className="w-8 h-8 text-green-600" />
             <span className="text-2xl font-bold text-gray-900">StockPortfolio AI</span>
           </div>
-          <Link
+          <a
             href="/app"
-            className="px-6 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+            onClick={handleStartAnalyzing}
+            className={`px-6 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors flex items-center gap-2 ${
+              isNavigating ? "opacity-75 cursor-wait" : ""
+            }`}
           >
-            Get Started
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            {isNavigating ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                Get Started
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </a>
         </div>
       </nav>
 
@@ -41,13 +88,25 @@ export function LandingPage() {
             every step of the process.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link
+            <a
               href="/app"
-              className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl"
+              onClick={handleStartAnalyzing}
+              className={`px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl ${
+                isNavigating ? "opacity-75 cursor-wait" : ""
+              }`}
             >
-              Start Analyzing
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+              {isNavigating ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Start Analyzing
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </a>
             <a
               href="#features"
               className="px-8 py-4 bg-white text-gray-700 rounded-full font-semibold text-lg border-2 border-gray-200 hover:border-gray-300 transition-colors"
@@ -188,13 +247,25 @@ export function LandingPage() {
           <p className="text-xl mb-8 text-green-50">
             Start using AI-powered portfolio analysis today. Get instant insights and make smarter investment decisions.
           </p>
-          <Link
+          <a
             href="/app"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-green-600 rounded-full font-semibold text-lg hover:bg-green-50 transition-colors shadow-lg"
+            onClick={handleStartAnalyzing}
+            className={`inline-flex items-center gap-2 px-8 py-4 bg-white text-green-600 rounded-full font-semibold text-lg hover:bg-green-50 transition-colors shadow-lg ${
+              isNavigating ? "opacity-75 cursor-wait" : ""
+            }`}
           >
-            Get Started Now
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+            {isNavigating ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                Get Started Now
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </a>
         </div>
       </section>
 
