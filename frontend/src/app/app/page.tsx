@@ -78,8 +78,8 @@ export default function OpenStocksCanvas() {
   const [investedAmount, setInvestedAmount] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [actionStatus, setActionStatus] = useState<string | null>(null)
-  const [toolLogs, setToolLogs] = useState<any[]>([])
   const toolLogsRef = useRef<any[]>([])
+  const [toolLogsVersion, setToolLogsVersion] = useState(0)
 
   const { state, setState } = useCoAgent({
     name: "crewaiAgent",
@@ -92,20 +92,24 @@ export default function OpenStocksCanvas() {
 
   // Track loading state based on tool logs and action status
   useEffect(() => {
-    const hasProcessingLogs = Boolean(toolLogs && toolLogs.some((log: any) => log.status === "processing"))
+    const hasProcessingLogs = Boolean(toolLogsRef.current && toolLogsRef.current.some((log: any) => log.status === "processing"))
     // Show loading if action is processing (not complete) or if there are processing tool logs
     const isActionProcessing = Boolean(actionStatus && actionStatus !== "complete" && actionStatus !== null)
     setIsAnalyzing(hasProcessingLogs || isActionProcessing)
-  }, [toolLogs, actionStatus])
+  }, [toolLogsVersion, actionStatus])
 
   useCoAgentStateRender({
     name: "crewaiAgent",
     render: ({state: agentState}) => {
-      // Update tool logs state when agent state changes (avoid infinite loops with ref check)
+      // Update tool logs ref when agent state changes (refs can be updated during render)
       const currentLogs = agentState.tool_logs || []
-      if (JSON.stringify(currentLogs) !== JSON.stringify(toolLogsRef.current)) {
+      const logsChanged = JSON.stringify(currentLogs) !== JSON.stringify(toolLogsRef.current)
+      if (logsChanged) {
         toolLogsRef.current = currentLogs
-        setToolLogs(currentLogs)
+        // Update state after render completes (using setTimeout to avoid setState during render)
+        setTimeout(() => {
+          setToolLogsVersion(prev => prev + 1)
+        }, 0)
       }
       return <ToolLogs logs={currentLogs} />
     }
