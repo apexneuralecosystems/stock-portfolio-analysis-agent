@@ -91,12 +91,14 @@ Copy-Item frontend\.env.example frontend\.env
 ```env
 OPENROUTER_API_KEY=your-openrouter-key-here
 OPENAI_API_KEY=your-openrouter-key-here
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
 NEXT_PUBLIC_CREWAI_URL=http://127.0.0.1:8006/crewai-agent
 ```
 
 **Important Notes:**
 - Replace `your-openrouter-key-here` with your actual OpenRouter API key from [https://openrouter.ai/keys](https://openrouter.ai/keys)
 - `OPENAI_API_KEY` must be set to the **same value** as `OPENROUTER_API_KEY` (CopilotKit requirement)
+- `OPENAI_BASE_URL` must be set to `https://openrouter.ai/api/v1` to route requests to OpenRouter instead of OpenAI
 - The backend URL should match your backend configuration
 
 ## Running the Application

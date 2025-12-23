@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { useState } from "react"
-import type { PortfolioState } from "@/app/page"
+import type { PortfolioState } from "@/app/app/page"
 
 interface ComponentTreeProps {
   portfolioState: PortfolioState

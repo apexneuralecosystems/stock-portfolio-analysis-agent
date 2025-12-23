@@ -24,12 +24,16 @@ if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY environment variable is required. Set it to the same value as OPENROUTER_API_KEY in your .env file");
 }
 
-// Configure OpenAIAdapter to use OpenRouter
-// OpenAIAdapter reads apiKey from OPENAI_API_KEY env var automatically
-// Only pass baseURL to route requests to OpenRouter instead of OpenAI
-const serviceAdapter = new OpenAIAdapter({
-  baseURL: "https://openrouter.ai/api/v1",
-})
+// OpenAIAdapter uses OPENAI_BASE_URL environment variable to configure the base URL
+// This must be set in .env file (cannot be set at runtime in Next.js)
+if (!process.env.OPENAI_BASE_URL) {
+  throw new Error("OPENAI_BASE_URL environment variable is required. Set it to 'https://openrouter.ai/api/v1' in your .env file");
+}
+
+// Configure OpenAIAdapter - it reads configuration from environment variables:
+// - OPENAI_API_KEY: The API key (should be your OpenRouter key)
+// - OPENAI_BASE_URL: The base URL (should be 'https://openrouter.ai/api/v1' for OpenRouter)
+const serviceAdapter = new OpenAIAdapter()
 const runtime = new CopilotRuntime({
   agents: {
     // @ts-ignore

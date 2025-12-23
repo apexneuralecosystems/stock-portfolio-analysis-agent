@@ -6,7 +6,7 @@ import { InsightCardComponent } from "./chart-components/insight-card"
 import { SectionTitle } from "./chart-components/section-title"
 import { BarChartComponent } from "./chart-components/bar-chart"
 import { LoadingOverlay } from "./loading-overlay"
-import type { PortfolioState, SandBoxPortfolioState } from "../page"
+import type { PortfolioState, SandBoxPortfolioState } from "../app/page"
 
 interface GenerativeCanvasProps {
   portfolioState: PortfolioState
