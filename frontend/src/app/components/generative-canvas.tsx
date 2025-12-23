@@ -5,7 +5,6 @@ import { AllocationTableComponent } from "./chart-components/allocation-table"
 import { InsightCardComponent } from "./chart-components/insight-card"
 import { SectionTitle } from "./chart-components/section-title"
 import { BarChartComponent } from "./chart-components/bar-chart"
-import { LoadingOverlay } from "./loading-overlay"
 import type { PortfolioState, SandBoxPortfolioState } from "../app/page"
 
 interface GenerativeCanvasProps {
@@ -19,7 +18,6 @@ interface GenerativeCanvasProps {
 export function GenerativeCanvas({ portfolioState, setSelectedStock, sandBoxPortfolio, setSandBoxPortfolio, isLoading = false }: GenerativeCanvasProps) {
   return (
     <div className="h-full overflow-auto relative">
-      {isLoading && <LoadingOverlay />}
       <div className="p-4 space-y-4 max-w-none">
         {/* Performance Section */}
         <div>
