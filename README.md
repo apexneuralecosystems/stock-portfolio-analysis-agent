@@ -112,6 +112,9 @@ cd backend
 # Start the server
 uv run python main.py
 
+#for production 
+
+pm2 start uv --name stock-ap -- run python main.py
 # Or from project root:
 # uv run python backend/main.py
 ```
